@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String?
+  cargoes  Cargo[]
+  Order    Order[]
+}
+
+model Cargo {
+  id          Int     @id @default(autoincrement())
+  description String
+  weight      Float
+  ownerId     Int
+  owner       User    @relation(fields: [ownerId], references: [id])
+  Order       Order[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  cargo     Cargo       @relation(fields: [cargoId], references: [id])
+  cargoId   Int
+  user      User        @relation(fields: [userId], references: [id])
+  userId    Int
+  driver    Driver?     @relation(fields: [driverId], references: [id])
+  driverId  Int?
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Route Route[]
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+model Driver {
+  id      Int     @id @default(autoincrement())
+  name    String
+  license String  @unique
+  rating  Float?
+  orders  Order[]
+  Truck   Truck[]
+}
+
+model Truck {
+  id       Int    @id @default(autoincrement())
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int
+  model    String
+  capacity Float
+  plate    String @unique
+}
+
+model Route {
+  id             Int      @id @default(autoincrement())
+  origin         String   // можно заменить на JSON с координатами
+  destination    String   // можно заменить на JSON с координатами
+  distance       Float    // расстояние в километрах
+  estimatedTime  Int      // время в минутах
+  cost           Float?   // опционально стоимость маршрута
+  createdAt      DateTime @default(now())
+  order          Order?   @relation(fields: [orderId], references: [id])
+  orderId        Int?
+}
+
