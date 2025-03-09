@@ -9,10 +9,18 @@ import { DriverController } from './driver/driver.controller';
 import { DriverModule } from './driver/driver.module';
 import { TruckModule } from './truck/truck.module';
 import { RouteModule } from './route/route.module';
-import  { PrismaModule } from  '../prisma/prisma.module'
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [CargoModule, PrismaModule, UserModule, OrderModule, DriverModule, TruckModule, RouteModule],
+  imports: [
+    CargoModule,
+    PrismaModule,
+    UserModule,
+    OrderModule,
+    DriverModule,
+    TruckModule,
+    RouteModule,
+  ],
   controllers: [AppController, DriverController],
   providers: [AppService, DriverService],
 })
