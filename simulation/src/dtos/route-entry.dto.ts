@@ -1,4 +1,4 @@
 export class RouteEntryDto {
-    distanceKM: number;
-    durationMin: number;
+  distanceKM: number;
+  durationMin: number;
 }
