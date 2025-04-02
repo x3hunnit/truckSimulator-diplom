@@ -1,11 +1,27 @@
-// src/app/page.tsx
 'use client'
 import { useState } from 'react'
 import RouteForm, { Shipment } from './components/RouteForm'
 import RouteMap from './components/RouteMap'
 
+// Определяем тип для маршрута, возвращаемого сервером
+interface RouteGeometry {
+  distanceKM: number
+  durationMin: number
+  geometry?: {
+    type: string
+    coordinates: number[][] // массив координат вида [ [lon, lat], ... ]
+  }
+}
+
+interface ShipmentResult {
+  description: string
+  routes: RouteGeometry[] | null
+  error?: string
+}
+
 export default function Home() {
   const [shipment, setShipment] = useState<Shipment | null>(null)
+  // Массив маршрутов: каждый маршрут – массив координат вида [ [lon, lat], ... ]
   const [routeGeometries, setRouteGeometries] = useState<number[][][] | null>(null)
   const [error, setError] = useState<string>('')
 
@@ -20,16 +36,17 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([data]),
       })
-      const result = await response.json()
+      // Явно указываем тип результата, чтобы избежать неявного any
+      const result = (await response.json()) as ShipmentResult[]
       if (result && result.length > 0) {
         const shipmentResult = result[0]
         if (shipmentResult.error) {
           setError(shipmentResult.error)
         } else if (shipmentResult.routes && shipmentResult.routes.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const geometries: number[][][] = shipmentResult.routes.map((route: any) => {
+          // Извлекаем геометрию маршрутов из ответа сервера
+          const geometries: number[][][] = shipmentResult.routes.map((route) => {
             if (route.geometry && route.geometry.coordinates) {
-              return route.geometry.coordinates
+              return route.geometry.coordinates // GeoJSON-формат: массив [ [lon, lat], ... ]
             } else {
               return [
                 [data.originLon, data.originLat],
@@ -37,22 +54,6 @@ export default function Home() {
               ]
             }
           })
-
-          console.log("Original geometries:", geometries)
-
-          const desiredRoutes = 3
-          if (geometries.length < desiredRoutes && geometries.length > 0) {
-            const base = geometries[0]
-            while (geometries.length < desiredRoutes) {
-              const simulatedRoute = base.map(coord => {
-                const noiseFactorLon = 1 + (Math.random() * 0.02 - 0.01)
-                const noiseFactorLat = 1 + (Math.random() * 0.02 - 0.01)
-                return [coord[0] * noiseFactorLon, coord[1] * noiseFactorLat]
-              })
-              geometries.push(simulatedRoute)
-            }
-          }
-          console.log("Final geometries:", geometries)
           setRouteGeometries(geometries)
         }
       }
@@ -65,29 +66,21 @@ export default function Home() {
     }
   }
 
+  // Вычисляем центр карты: берем первую точку первого маршрута, если он есть, иначе используем координаты Москвы
+  const center: [number, number] =
+    routeGeometries && routeGeometries.length > 0 && routeGeometries[0].length > 0
+      ? ([routeGeometries[0][0][1], routeGeometries[0][0][0]] as [number, number])
+      : ([55.7558, 37.6173] as [number, number])
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-6">Route Simulation</h1>
       <RouteForm onSubmit={handleSubmit} />
       {error && <p className="text-red-500 my-4">{error}</p>}
-      {routeGeometries && routeGeometries.length > 0 ? (
-        routeGeometries.map((geometry, index) => {
-          const center: [number, number] =
-            geometry && geometry.length > 0
-              ? ([geometry[0][1], geometry[0][0]] as [number, number])
-              : ([55.7558, 37.6173] as [number, number])
-          return (
-            <div key={index} className="h-96 mt-6 border mb-4">
-              <h2 className="text-xl mb-2">Route {index + 1}</h2>
-              <RouteMap center={center} routeGeometry={geometry} shipment={shipment} />
-            </div>
-          )
-        })
-      ) : (
-        <div className="h-96 mt-6">
-          <p className="text-center text-gray-500">No route available</p>
-        </div>
-      )}
+      <div className="h-96 mt-6">
+        {/* Отображаем одну карту с 10 маршрутами */}
+        <RouteMap center={center} routeGeometries={routeGeometries} shipment={shipment} />
+      </div>
     </div>
   )
 }

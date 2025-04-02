@@ -1,58 +1,80 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from 'next/dynamic'
 import type { FC } from 'react'
 import { LatLngExpression } from 'leaflet'
 import { Shipment } from './RouteForm'
 
-const MapContainer = dynamic(
-  () => import('react-leaflet').then(mod => mod.MapContainer) as Promise<React.FC<any>>,
+// Динамический импорт компонентов react-leaflet с типизацией
+const DynamicMapContainer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
 )
-const TileLayer = dynamic(
-  () => import('react-leaflet').then(mod => mod.TileLayer) as Promise<React.FC<any>>,
+const DynamicTileLayer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false }
 )
-const Polyline = dynamic(
-  () => import('react-leaflet').then(mod => mod.Polyline) as Promise<React.FC<any>>,
+const DynamicPolyline = dynamic(
+  () => import('react-leaflet').then((mod) => mod.Polyline),
   { ssr: false }
 )
-const Marker = dynamic(
-  () => import('react-leaflet').then(mod => mod.Marker) as Promise<React.FC<any>>,
+const DynamicMarker = dynamic(
+  () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false }
 )
-const Popup = dynamic(
-  () => import('react-leaflet').then(mod => mod.Popup) as Promise<React.FC<any>>,
+const DynamicPopup = dynamic(
+  () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
 )
 
 interface RouteMapProps {
   center: [number, number] // [lat, lon]
-  routeGeometry: number[][] 
+  // Массив маршрутов: каждый маршрут – массив координат вида [ [lon, lat], ... ]
+  routeGeometries: number[][][] | null
   shipment: Shipment | null
 }
 
-const RouteMap: FC<RouteMapProps> = ({ center, routeGeometry, shipment }) => {
+// Функция для генерации случайного цвета в формате HEX
+const randomColor = (): string => {
+  const letters = '0123456789ABCDEF'
+  let color = '#'
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
+
+const RouteMap: FC<RouteMapProps> = ({ center, routeGeometries, shipment }) => {
   const mapCenter: LatLngExpression = center
 
-  const polylinePositions: [number, number][] = routeGeometry.map(
-    (coord) => [coord[1], coord[0]] as [number, number]
-  )
-
   return (
-    <MapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Polyline positions={polylinePositions} color="blue" opacity={0.8} weight={4} />
+    <DynamicMapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }}>
+      <DynamicTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {routeGeometries &&
+        routeGeometries.map((route, idx) => {
+          // Преобразуем координаты маршрута из [lon, lat] в [lat, lon]
+          const polylinePositions: [number, number][] = route.map(
+            (coord) => [coord[1], coord[0]] as [number, number]
+          )
+          return (
+            <DynamicPolyline
+              key={idx}
+              positions={polylinePositions}
+              color={randomColor()}
+              opacity={0.8}
+              weight={4}
+            />
+          )
+        })}
       {shipment && (
         <>
-          <Marker position={[shipment.originLat, shipment.originLon]}>
-            <Popup>Origin</Popup>
-          </Marker>
-          <Marker position={[shipment.destLat, shipment.destLon]}>
-            <Popup>Destination</Popup>
-          </Marker>
+          <DynamicMarker position={[shipment.originLat, shipment.originLon]}>
+            <DynamicPopup>Origin</DynamicPopup>
+          </DynamicMarker>
+          <DynamicMarker position={[shipment.destLat, shipment.destLon]}>
+            <DynamicPopup>Destination</DynamicPopup>
+          </DynamicMarker>
         </>
       )}
-    </MapContainer>
+    </DynamicMapContainer>
   )
 }
 
