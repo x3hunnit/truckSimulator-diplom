@@ -6,7 +6,6 @@ import RouteMap from './components/RouteMap'
 
 export default function Home() {
   const [shipment, setShipment] = useState<Shipment | null>(null)
-  // Массив маршрутов: каждый маршрут – массив координат вида [ [lon, lat], ... ]
   const [routeGeometries, setRouteGeometries] = useState<number[][][] | null>(null)
   const [error, setError] = useState<string>('')
 
@@ -27,7 +26,6 @@ export default function Home() {
         if (shipmentResult.error) {
           setError(shipmentResult.error)
         } else if (shipmentResult.routes && shipmentResult.routes.length > 0) {
-          // Извлекаем геометрию маршрутов, ожидается, что каждая геометрия — массив [ [lon, lat], ... ]
           let geometries: number[][][] = shipmentResult.routes.map((route: any) => {
             if (route.geometry && route.geometry.coordinates) {
               return route.geometry.coordinates
@@ -39,16 +37,13 @@ export default function Home() {
             }
           })
 
-          // Для отладки: проверьте, что изначально получен один маршрут
           console.log("Original geometries:", geometries)
 
-          // Если получен только один маршрут, симулируем дополнительные маршруты (например, всего 3 альтернативы)
           const desiredRoutes = 3
           if (geometries.length < desiredRoutes && geometries.length > 0) {
             const base = geometries[0]
             while (geometries.length < desiredRoutes) {
               const simulatedRoute = base.map(coord => {
-                // Добавляем небольшое случайное отклонение ±1%
                 const noiseFactorLon = 1 + (Math.random() * 0.02 - 0.01)
                 const noiseFactorLat = 1 + (Math.random() * 0.02 - 0.01)
                 return [coord[0] * noiseFactorLon, coord[1] * noiseFactorLat]
@@ -76,7 +71,6 @@ export default function Home() {
       {error && <p className="text-red-500 my-4">{error}</p>}
       {routeGeometries && routeGeometries.length > 0 ? (
         routeGeometries.map((geometry, index) => {
-          // Центр карты берем из первой точки данного маршрута (если есть)
           const center: [number, number] =
             geometry && geometry.length > 0
               ? ([geometry[0][1], geometry[0][0]] as [number, number])

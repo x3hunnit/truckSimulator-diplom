@@ -3,7 +3,6 @@ import type { FC } from 'react'
 import { LatLngExpression } from 'leaflet'
 import { Shipment } from './RouteForm'
 
-// Динамический импорт компонентов react-leaflet с явной типизацией
 const MapContainer = dynamic(
   () => import('react-leaflet').then(mod => mod.MapContainer) as Promise<React.FC<any>>,
   { ssr: false }
@@ -27,7 +26,6 @@ const Popup = dynamic(
 
 interface RouteMapProps {
   center: [number, number] // [lat, lon]
-  // Геометрия одного маршрута: массив координат [ [lon, lat], ... ]
   routeGeometry: number[][] 
   shipment: Shipment | null
 }
@@ -35,7 +33,6 @@ interface RouteMapProps {
 const RouteMap: FC<RouteMapProps> = ({ center, routeGeometry, shipment }) => {
   const mapCenter: LatLngExpression = center
 
-  // Преобразуем координаты маршрута: из [lon, lat] в [lat, lon] для Polyline
   const polylinePositions: [number, number][] = routeGeometry.map(
     (coord) => [coord[1], coord[0]] as [number, number]
   )
