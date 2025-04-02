@@ -1,3 +1,4 @@
+// src/dtos/shipment.dto.ts
 export class ShipmentDto {
   originLat: number;
   originLon: number;
@@ -5,3 +6,4 @@ export class ShipmentDto {
   destLon: number;
   description: string;
 }
+

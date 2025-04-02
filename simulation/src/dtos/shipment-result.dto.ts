@@ -1,3 +1,4 @@
+// src/dtos/shipment-result.dto.ts
 import { RouteEntryDto } from './route-entry.dto';
 
 export class ShipmentResultDto {
@@ -5,3 +6,4 @@ export class ShipmentResultDto {
   routes: RouteEntryDto[] | null;
   error?: string;
 }
+

@@ -1,3 +1,4 @@
+// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { SimulationController } from './simulation.controller';
 import { SimulationService } from './simulation.service';
@@ -8,3 +9,4 @@ import { SimulationService } from './simulation.service';
   providers: [SimulationService],
 })
 export class AppModule {}
+
