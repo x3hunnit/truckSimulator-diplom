@@ -26,7 +26,8 @@ export default function Home() {
         if (shipmentResult.error) {
           setError(shipmentResult.error)
         } else if (shipmentResult.routes && shipmentResult.routes.length > 0) {
-          let geometries: number[][][] = shipmentResult.routes.map((route: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const geometries: number[][][] = shipmentResult.routes.map((route: any) => {
             if (route.geometry && route.geometry.coordinates) {
               return route.geometry.coordinates
             } else {
