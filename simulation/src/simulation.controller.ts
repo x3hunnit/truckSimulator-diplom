@@ -1,4 +1,3 @@
-// src/simulation.controller.ts
 import { Controller, Post, Body } from '@nestjs/common';
 import { SimulationService } from './simulation.service';
 import { ShipmentDto } from './dtos/shipment.dto';

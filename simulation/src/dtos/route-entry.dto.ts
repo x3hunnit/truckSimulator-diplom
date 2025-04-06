@@ -2,10 +2,9 @@
 export class RouteEntryDto {
   distanceKM: number;
   durationMin: number;
-  // geometry будет содержать GeoJSON-объект маршрута
-  geometry?: {
+  // geometry содержит GeoJSON-объект, например LineString с координатами [ [lon, lat], ... ]
+  geometry: {
     type: string;
-    coordinates: number[][]; // Массив координат вида [lon, lat]
+    coordinates: number[][];
   };
 }
-

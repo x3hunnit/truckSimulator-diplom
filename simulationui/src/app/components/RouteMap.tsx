@@ -5,23 +5,23 @@ import { Shipment } from './RouteForm'
 
 // Динамический импорт компонентов react-leaflet с типизацией
 const DynamicMapContainer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  () => import('react-leaflet').then(mod => mod.MapContainer),
   { ssr: false }
 )
 const DynamicTileLayer = dynamic(
-  () => import('react-leaflet').then((mod) => mod.TileLayer),
+  () => import('react-leaflet').then(mod => mod.TileLayer),
   { ssr: false }
 )
 const DynamicPolyline = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Polyline),
+  () => import('react-leaflet').then(mod => mod.Polyline),
   { ssr: false }
 )
 const DynamicMarker = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Marker),
+  () => import('react-leaflet').then(mod => mod.Marker),
   { ssr: false }
 )
 const DynamicPopup = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Popup),
+  () => import('react-leaflet').then(mod => mod.Popup),
   { ssr: false }
 )
 
@@ -32,18 +32,18 @@ interface RouteMapProps {
   shipment: Shipment | null
 }
 
-// Функция для генерации случайного цвета в формате HEX
+// Функция для генерации случайного цвета (HEX)
 const randomColor = (): string => {
-  const letters = '0123456789ABCDEF'
-  let color = '#'
+  const letters = '0123456789ABCDEF';
+  let color = '#';
   for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)]
+    color += letters[Math.floor(Math.random() * 16)];
   }
-  return color
+  return color;
 }
 
 const RouteMap: FC<RouteMapProps> = ({ center, routeGeometries, shipment }) => {
-  const mapCenter: LatLngExpression = center
+  const mapCenter: LatLngExpression = center;
 
   return (
     <DynamicMapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }}>
@@ -53,7 +53,7 @@ const RouteMap: FC<RouteMapProps> = ({ center, routeGeometries, shipment }) => {
           // Преобразуем координаты маршрута из [lon, lat] в [lat, lon]
           const polylinePositions: [number, number][] = route.map(
             (coord) => [coord[1], coord[0]] as [number, number]
-          )
+          );
           return (
             <DynamicPolyline
               key={idx}
@@ -62,7 +62,7 @@ const RouteMap: FC<RouteMapProps> = ({ center, routeGeometries, shipment }) => {
               opacity={0.8}
               weight={4}
             />
-          )
+          );
         })}
       {shipment && (
         <>
@@ -75,8 +75,7 @@ const RouteMap: FC<RouteMapProps> = ({ center, routeGeometries, shipment }) => {
         </>
       )}
     </DynamicMapContainer>
-  )
-}
+  );
+};
 
-export default RouteMap
-
+export default RouteMap;

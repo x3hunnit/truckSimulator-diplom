@@ -3,25 +3,23 @@ import { useState } from 'react'
 import RouteForm, { Shipment } from './components/RouteForm'
 import RouteMap from './components/RouteMap'
 
-// Определяем тип для маршрута, возвращаемого сервером
 interface RouteGeometry {
-  distanceKM: number
-  durationMin: number
+  distanceKM: number;
+  durationMin: number;
   geometry?: {
-    type: string
-    coordinates: number[][] // массив координат вида [ [lon, lat], ... ]
+    type: string;
+    coordinates: number[][];
   }
 }
 
 interface ShipmentResult {
-  description: string
-  routes: RouteGeometry[] | null
-  error?: string
+  description: string;
+  routes: RouteGeometry[] | null;
+  error?: string;
 }
 
 export default function Home() {
   const [shipment, setShipment] = useState<Shipment | null>(null)
-  // Массив маршрутов: каждый маршрут – массив координат вида [ [lon, lat], ... ]
   const [routeGeometries, setRouteGeometries] = useState<number[][][] | null>(null)
   const [error, setError] = useState<string>('')
 
@@ -36,17 +34,15 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([data]),
       })
-      // Явно указываем тип результата, чтобы избежать неявного any
       const result = (await response.json()) as ShipmentResult[]
       if (result && result.length > 0) {
         const shipmentResult = result[0]
         if (shipmentResult.error) {
           setError(shipmentResult.error)
         } else if (shipmentResult.routes && shipmentResult.routes.length > 0) {
-          // Извлекаем геометрию маршрутов из ответа сервера
-          const geometries: number[][][] = shipmentResult.routes.map((route) => {
+          const geometries: number[][][] = shipmentResult.routes.map(route => {
             if (route.geometry && route.geometry.coordinates) {
-              return route.geometry.coordinates // GeoJSON-формат: массив [ [lon, lat], ... ]
+              return route.geometry.coordinates;
             } else {
               return [
                 [data.originLon, data.originLat],
@@ -66,7 +62,6 @@ export default function Home() {
     }
   }
 
-  // Вычисляем центр карты: берем первую точку первого маршрута, если он есть, иначе используем координаты Москвы
   const center: [number, number] =
     routeGeometries && routeGeometries.length > 0 && routeGeometries[0].length > 0
       ? ([routeGeometries[0][0][1], routeGeometries[0][0][0]] as [number, number])
@@ -78,10 +73,8 @@ export default function Home() {
       <RouteForm onSubmit={handleSubmit} />
       {error && <p className="text-red-500 my-4">{error}</p>}
       <div className="h-96 mt-6">
-        {/* Отображаем одну карту с 10 маршрутами */}
         <RouteMap center={center} routeGeometries={routeGeometries} shipment={shipment} />
       </div>
     </div>
   )
 }
-

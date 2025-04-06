@@ -6,4 +6,3 @@ export class ShipmentDto {
   destLon: number;
   description: string;
 }
-
