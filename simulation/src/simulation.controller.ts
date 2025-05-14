@@ -8,7 +8,9 @@ export class SimulationController {
   constructor(private readonly simulationService: SimulationService) {}
 
   @Post()
-  async simulate(@Body() shipments: ShipmentDto[]): Promise<ShipmentResultDto[]> {
+  async simulate(
+    @Body() shipments: ShipmentDto[],
+  ): Promise<ShipmentResultDto[]> {
     return this.simulationService.simulateShipments(shipments);
   }
 }
